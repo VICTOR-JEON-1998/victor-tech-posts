@@ -2,8 +2,8 @@ name: Tistory RSS Sync
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 매 시간 정각 실행 (UTC 기준 → 한국은 매시 9분쯤)
-  workflow_dispatch:     # 수동 실행도 허용
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   sync_blog:
@@ -24,13 +24,18 @@ jobs:
       - name: Run RSS Sync Script
         run: python scripts/rss_to_md.py
 
-      - name: Commit & Push
-        env:
-          TOKEN: ${{ secrets.ACTIONS_DEPLOY_TOKEN }}
+      - name: Set up Git user
         run: |
           git config --global user.name "VictorBot"
           git config --global user.email "victor-jeon-1998@users.noreply.github.com"
+
+      - name: Force push with token
+        env:
+          TOKEN: ${{ secrets.ACTIONS_DEPLOY_TOKEN }}
+        run: |
+          git remote remove origin
+          git remote add origin https://x-access-token:${TOKEN}@github.com/VICTOR-JEON-1998/victor-tech-posts.git
+          git fetch origin
           git add .
           git commit -m "auto: update from Tistory RSS" || echo "nothing to commit"
-          git push https://x-access-token:${TOKEN}@github.com/VICTOR-JEON-1998/victor-tech-posts.git HEAD:main
-
+          git push origin HEAD:main
