@@ -25,10 +25,14 @@ jobs:
         run: python scripts/rss_to_md.py
 
       - name: Commit & Push
+        env:
+          TOKEN: ${{ secrets.ACTIONS_DEPLOY_TOKEN }}
         run: |
           git config --global user.name "VictorBot"
           git config --global user.email "victor@github.io"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/VICTOR-JEON-1998/victor-tech-posts.git
           git add .
-          git commit -m "auto: update from Tistory RSS" || echo "No changes to commit"
-          git push
+          git commit -m "auto: update from Tistory RSS" || echo "nothing to commit"
+          git push origin main
+
 
